@@ -44,29 +44,13 @@ using namespace metal;
     
     vector_float2 uv = position / bounds.zw;
     float3 color = startColor;
-    uv.x += time;
-    //uv.x = uv.x * (1 + cos(time + uv.x)) / 2;
-    
-    switch (int(uv.x * 100) % 100) {
-        case 0 ... 25:
-            color = mix(startColor, middleColor, smoothstep(0, 0.25, uv.x));
-            break;
-            
-        case 26 ... 50:
-            color = mix(middleColor, endColor, smoothstep(0.25, 0.5, uv.x));
-            break;
-            
-        case 51 ... 75:
-            color = mix(endColor, middleColor, smoothstep(0.5, 0.75, uv.x));
-            break;
-            
-        case 76 ... 100:
-            color = mix(middleColor, startColor, smoothstep(0.75, 1, uv.x));
-            break;
-            
-        default:
-            break;
-    }
+
+    // Gradient  Animation (https://www.desmos.com/calculator/pl585ejqgh)
+    float ratio = (1 + cos((time - uv.x) * M_PI_F)) / 2;
+    color = mix(startColor, middleColor, smoothstep(0, 0.25, ratio));
+    color = mix(color, endColor, smoothstep(0.25, 0.5, ratio));
+    color = mix(color, middleColor, smoothstep(0.5, 0.75, ratio));
+    color = mix(color, startColor, smoothstep(0.75, 1, ratio));
     
     return half4(color.x, color.y, color.z, 1);
 }
